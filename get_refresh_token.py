@@ -7,7 +7,7 @@ print("To use the Spotify plugin without needing to log in every hour, you need 
 print("A Refresh Token allows the plugin to generate new access tokens in the background.")
 print("\nInstructions:")
 print("1. Go to the Spotify Developer Dashboard (https://developer.spotify.com/dashboard)")
-print("2. Create an App, and edit settings to add 'http://localhost:8080' to the Redirect URIs.")
+print("2. Create an App, and edit settings to add 'https://localhost:8080' to the Redirect URIs.")
 print("3. Copy your Client ID and Client Secret.")
 print("")
 
@@ -24,7 +24,7 @@ try:
     auth_manager = SpotifyOAuth(
         client_id=client_id,
         client_secret=client_secret,
-        redirect_uri="http://localhost:8080",
+        redirect_uri="https://localhost:8080",
         scope=scope,
         open_browser=False
     )
@@ -37,7 +37,7 @@ try:
     print("-" * 50)
     print("\nAfter accepting, you will be redirected to an empty or error page at localhost.")
     print("Look at the URL in your browser's address bar. It will look like this:")
-    print("http://localhost:8080/?code=NApCCgB...&state=...")
+    print("https://localhost:8080/?code=NApCCgB...&state=...")
     
     redirected_url = input("\nPaste the FULL redirected URL here: ").strip()
     
