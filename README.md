@@ -10,7 +10,7 @@ Because this plugin interacts with the Spotify API to read your current playback
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 2. Log in with your Spotify account and click on **Create app**.
 3. Fill out the details (App Name and Description can be anything).
-4. Under **Redirect URIs**, you **must** enter `https://localhost:8080`.
+4. Under **Redirect URIs**, you **must** enter `https://google.com/callback`.
 5. Under **APIs used**, check **Web API**.
 6. Save the app. 
 7. Go to the app's settings and click **View client secret**. You will need both the **Client ID** and **Client Secret** for the next steps.
@@ -30,8 +30,8 @@ Included in this plugin is a helper script to generate this token:
    ```
 4. Paste your **Client ID** and **Client Secret** when prompted.
 5. Your browser will open. Log into Spotify and click "Agree".
-6. You will be redirected to an empty page or a "site can't be reached" error. **This is normal.**
-7. Look at the URL in your browser's address bar. It will look like `https://localhost:8080/?code=NApCC...`. Copy the **entire URL**.
+6. You will be redirected to a Google page with a 404 error. **This is normal.**
+7. Look at the URL in your browser's address bar. It will look like `https://google.com/callback?code=NApCC...`. Copy the **entire URL**.
 8. Paste the URL back into the python script.
 9. The script will output your **Refresh Token**. Copy it!
 
