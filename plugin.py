@@ -31,7 +31,7 @@ class SpotifyPlugin(PixooPluginBase):
                 auth_manager = SpotifyOAuth(
                     client_id=self.client_id,
                     client_secret=self.client_secret,
-                    redirect_uri="https://localhost:8080",
+                    redirect_uri="https://google.com/callback",
                     cache_handler=cache_handler
                 )
                 self.sp = spotipy.Spotify(auth_manager=auth_manager)
