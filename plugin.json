@@ -1,0 +1,49 @@
+{
+    "name": "Spotify Now Playing",
+    "description": "Displays the cover art of the currently playing song on Spotify.",
+    "version": "1.0.0",
+    "author": "Tim",
+    "entry": "plugin.py",
+    "settings_schema": [
+        {
+            "type": "header",
+            "label": "Spotify API Credentials"
+        },
+        {
+            "name": "client_id",
+            "label": "Client ID",
+            "type": "text",
+            "info": "Your Spotify Developer Client ID."
+        },
+        {
+            "name": "client_secret",
+            "label": "Client Secret",
+            "type": "password",
+            "info": "Your Spotify Developer Client Secret."
+        },
+        {
+            "name": "refresh_token",
+            "label": "Refresh Token",
+            "type": "password",
+            "info": "Your Spotify Refresh Token. You can run get_refresh_token.py to get one."
+        },
+        {
+            "type": "header",
+            "label": "Display Options"
+        },
+        {
+            "name": "show_progress_bar",
+            "label": "Show Progress Bar",
+            "type": "text",
+            "default": "false",
+            "info": "Enter 'true' to display a 1-pixel blue progress bar at the bottom, or 'false' to hide it."
+        },
+        {
+            "name": "update_interval",
+            "label": "Update Interval (seconds)",
+            "type": "number",
+            "default": 3,
+            "info": "How often to poll Spotify for updates (seconds)."
+        }
+    ]
+}
