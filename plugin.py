@@ -9,6 +9,11 @@ from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import MemoryCacheHandler
 from app.plugin_api import PixooPluginBase
 
+class HeadlessSpotifyOAuth(SpotifyOAuth):
+    def _get_auth_response_interactive(self, open_browser=False):
+        # Override to prevent `input()` from blocking the server thread!
+        raise Exception("Refresh token is invalid or expired! Interactive login is blocked on this headless server.")
+
 logger = logging.getLogger(__name__)
 
 class SpotifyPlugin(PixooPluginBase):
@@ -22,17 +27,21 @@ class SpotifyPlugin(PixooPluginBase):
         self.sp = None
         if self.client_id and self.client_secret and self.refresh_token:
             try:
+                scope = "user-read-currently-playing user-read-playback-state"
                 token_info = {
                     "refresh_token": self.refresh_token,
                     "access_token": "dummy",
-                    "expires_at": 0
+                    "expires_at": 0,
+                    "scope": scope
                 }
                 cache_handler = MemoryCacheHandler(token_info=token_info)
-                auth_manager = SpotifyOAuth(
+                auth_manager = HeadlessSpotifyOAuth(
                     client_id=self.client_id,
                     client_secret=self.client_secret,
                     redirect_uri="https://google.com/callback",
-                    cache_handler=cache_handler
+                    cache_handler=cache_handler,
+                    open_browser=False,
+                    scope=scope
                 )
                 self.sp = spotipy.Spotify(auth_manager=auth_manager)
                 logger.info("Spotify client initialized successfully.")
