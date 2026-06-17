@@ -36,7 +36,7 @@
             "label": "Show Progress Bar",
             "type": "switch",
             "default": false,
-            "info": "Toggle to display a 1-pixel blue progress bar at the bottom."
+            "info": "Toggle to display a dynamic progress bar at the bottom based on cover colors."
         },
         {
             "name": "update_interval",

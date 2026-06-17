@@ -1,6 +1,6 @@
 # Spotify Now Playing Plugin
 
-This plugin for the Pixoo Hub Marketplace displays the cover art of the currently playing song on your Spotify account directly on your Pixoo 64. It also features an optional blue progress bar at the bottom of the screen.
+This plugin for the Pixoo Hub Marketplace displays the cover art of the currently playing song on your Spotify account directly on your Pixoo 64. It also features an optional dynamic progress bar at the bottom of the screen that automatically adopts a vibrant color from the album cover.
 
 ## 🛠 Configuration & Setup
 
@@ -41,7 +41,7 @@ Open the Pixoo Hub dashboard, install this plugin, and navigate to the plugin's 
 - **Client ID**: Paste the Client ID from Step 1.
 - **Client Secret**: Paste the Client Secret from Step 1.
 - **Refresh Token**: Paste the Refresh Token you got in Step 2.
-- **Show Progress Bar**: Enter `true` to display a 1-pixel blue progress bar at the bottom, or `false` to hide it.
+- **Show Progress Bar**: Enter `true` to display a dynamic progress bar at the bottom, or `false` to hide it.
 - **Update Interval (seconds)**: Defines how often the plugin asks Spotify for the current song. `3` is a good default.
 
 Once saved, the plugin will authenticate automatically and your Pixoo 64 will display your current song's cover!
