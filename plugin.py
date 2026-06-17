@@ -24,6 +24,8 @@ class SpotifyPlugin(PixooPluginBase):
         
         self.sp = None
         self.last_track_id = None
+        self.progress_bar_color = (0, 120, 255)
+        self.last_buffer = None
         self.cover_path = os.path.join(os.path.dirname(__file__), "spotify_cover.png")
         self.pixoo = self.get_pixoo_instance()
 
@@ -52,6 +54,24 @@ class SpotifyPlugin(PixooPluginBase):
         except Exception as e:
             logger.error(f"Failed to initialize Spotify client: {e}")
 
+    def get_dominant_color(self, image_path):
+        try:
+            img = Image.open(image_path).convert('RGB')
+            img.thumbnail((32, 32))
+            colors = img.getcolors(32*32)
+            colors.sort(key=lambda x: x[0], reverse=True)
+            
+            for count, color in colors:
+                r, g, b = color
+                # Check for vibrant color (high saturation, not too dark/bright)
+                saturation = max(r, g, b) - min(r, g, b)
+                if saturation > 30 and 50 < sum(color) < 700:
+                    return color
+            return colors[0][1]
+        except Exception as e:
+            logger.error(f"Error getting color: {e}")
+            return (0, 120, 255)
+
     def update_display(self, playback):
         if not playback or not playback.get('item') or not playback.get('is_playing'):
             if self.last_track_id is not None:
@@ -77,6 +97,7 @@ class SpotifyPlugin(PixooPluginBase):
                     if img.size != (64, 64):
                         img = img.resize((64, 64), Image.Resampling.LANCZOS)
                     img.save(self.cover_path)
+                    self.progress_bar_color = self.get_dominant_color(self.cover_path)
                 except Exception as e:
                     logger.error(f"Error downloading cover: {e}")
                     
@@ -94,9 +115,14 @@ class SpotifyPlugin(PixooPluginBase):
                 progress_ms = playback.get('progress_ms', 0)
                 bar_width = int(min(1.0, max(0.0, progress_ms / duration_ms)) * 64)
                 if bar_width > 0:
-                    self.pixoo.draw_line((0, 63), (bar_width - 1, 63), (0, 120, 255))
+                    self.pixoo.draw_line((0, 63), (bar_width - 1, 63), self.progress_bar_color)
             
-            self.pixoo.push()
+            # Only push if the buffer has actually changed
+            current_buffer = self.pixoo._Pixoo__buffer.copy()
+            if self.last_buffer != current_buffer:
+                self.pixoo.push()
+                self.last_buffer = current_buffer
+                
         except Exception as e:
             logger.error(f"Error drawing to pixoo: {e}")
 
