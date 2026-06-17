@@ -54,20 +54,22 @@ class SpotifyPlugin(PixooPluginBase):
         except Exception as e:
             logger.error(f"Failed to initialize Spotify client: {e}")
 
-    def get_dominant_color(self, image_path):
+    def get_dominant_color(self, img):
         try:
-            img = Image.open(image_path).convert('RGB')
             img.thumbnail((32, 32))
-            colors = img.getcolors(32*32)
+            colors = img.getcolors(32 * 32)
             
+            if not colors:
+                return (30, 215, 96)
+
             def get_saturation(c):
                 return max(c) - min(c)
                 
-            valid_colors = []
-            for count, c in colors:
-                # Must be reasonably bright and saturated to be considered "knallig"
-                if get_saturation(c) > 20 and max(c) > 80:
-                    valid_colors.append((count, c))
+            # Must be reasonably bright and saturated to be considered "knallig"
+            valid_colors = [
+                (count, c) for count, c in colors 
+                if get_saturation(c) > 20 and max(c) > 80
+            ]
             
             if valid_colors:
                 # Score = count * saturation. Pick the most prominent vibrant color
@@ -87,6 +89,39 @@ class SpotifyPlugin(PixooPluginBase):
             logger.error(f"Error getting color: {e}")
             return (30, 215, 96)
 
+    def _download_and_process_cover(self, img_url):
+        try:
+            response = requests.get(img_url, timeout=5)
+            response.raise_for_status()
+            img = Image.open(BytesIO(response.content)).convert('RGB')
+            
+            # Ensure it's exactly 64x64 if it's not already
+            if img.size != (64, 64):
+                img = img.resize((64, 64), Image.Resampling.LANCZOS)
+            
+            # Calculate dominant color using a copy to avoid shrinking the original cover
+            self.progress_bar_color = self.get_dominant_color(img.copy())
+            
+            # Bake the separator and track directly into the cover image for perfect pixel coverage
+            show_progress_bar = str(self.config.get("show_progress_bar", "false")).lower() == "true"
+            if show_progress_bar:
+                pixels = img.load()
+                track_color = (
+                    int(self.progress_bar_color[0] * 0.3),
+                    int(self.progress_bar_color[1] * 0.3),
+                    int(self.progress_bar_color[2] * 0.3)
+                )
+                for x in range(img.width):
+                    # Darken the separator line at y=62 by 50%
+                    r, g, b = pixels[x, 62]
+                    pixels[x, 62] = (int(r * 0.5), int(g * 0.5), int(b * 0.5))
+                    # Draw the background track at y=63
+                    pixels[x, 63] = track_color
+                    
+            img.save(self.cover_path)
+        except Exception as e:
+            logger.error(f"Error downloading cover: {e}")
+
     def update_display(self, playback):
         if not playback or not playback.get('item') or not playback.get('is_playing'):
             if self.last_track_id is not None:
@@ -103,18 +138,7 @@ class SpotifyPlugin(PixooPluginBase):
             images = item.get('album', {}).get('images', [])
             if images:
                 # Use the smallest image to save memory and bandwidth (usually the last one is 64x64)
-                img_url = images[-1].get('url')
-                try:
-                    response = requests.get(img_url, timeout=5)
-                    response.raise_for_status()
-                    img = Image.open(BytesIO(response.content))
-                    # Ensure it's exactly 64x64 if it's not already
-                    if img.size != (64, 64):
-                        img = img.resize((64, 64), Image.Resampling.LANCZOS)
-                    img.save(self.cover_path)
-                    self.progress_bar_color = self.get_dominant_color(self.cover_path)
-                except Exception as e:
-                    logger.error(f"Error downloading cover: {e}")
+                self._download_and_process_cover(images[-1].get('url'))
                     
         # Draw onto Pixoo buffer
         self.pixoo.fill((0, 0, 0))
@@ -128,17 +152,6 @@ class SpotifyPlugin(PixooPluginBase):
             if show_progress_bar:
                 duration_ms = max(1, item.get('duration_ms', 1))
                 progress_ms = playback.get('progress_ms', 0)
-                
-                # Separator line to ensure the progress bar never blends into the cover
-                self.pixoo.draw_line((0, 62), (63, 62), (0, 0, 0))
-                
-                # Draw a darker background track for the progress bar
-                track_color = (
-                    int(self.progress_bar_color[0] * 0.3),
-                    int(self.progress_bar_color[1] * 0.3),
-                    int(self.progress_bar_color[2] * 0.3)
-                )
-                self.pixoo.draw_line((0, 63), (63, 63), track_color)
                 
                 bar_width = int(min(1.0, max(0.0, progress_ms / duration_ms)) * 64)
                 if bar_width > 0:
