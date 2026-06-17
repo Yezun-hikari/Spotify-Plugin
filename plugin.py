@@ -106,17 +106,11 @@ class SpotifyPlugin(PixooPluginBase):
             show_progress_bar = str(self.config.get("show_progress_bar", "false")).lower() == "true"
             if show_progress_bar:
                 pixels = img.load()
-                track_color = (
-                    int(self.progress_bar_color[0] * 0.3),
-                    int(self.progress_bar_color[1] * 0.3),
-                    int(self.progress_bar_color[2] * 0.3)
-                )
                 for x in range(img.width):
-                    # Darken the separator line at y=62 by 50%
-                    r, g, b = pixels[x, 62]
-                    pixels[x, 62] = (int(r * 0.5), int(g * 0.5), int(b * 0.5))
-                    # Draw the background track at y=63
-                    pixels[x, 63] = track_color
+                    # Darken the bottom two rows (y=62, y=63) by 50% to act as a separator and background track
+                    for y in (62, 63):
+                        r, g, b = pixels[x, y]
+                        pixels[x, y] = (int(r * 0.5), int(g * 0.5), int(b * 0.5))
                     
             img.save(self.cover_path)
         except Exception as e:
