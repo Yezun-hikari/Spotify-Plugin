@@ -21,8 +21,6 @@ class SpotifyPlugin(PixooPluginBase):
         self.client_id = self.config.get("client_id", "")
         self.client_secret = self.config.get("client_secret", "")
         self.refresh_token = self.config.get("refresh_token", "")
-        self.show_progress_bar = str(self.config.get("show_progress_bar", "false")).lower() == "true"
-        self.update_interval = max(1, int(self.config.get("update_interval", 3)))
         
         self.sp = None
         self.last_track_id = None
@@ -90,7 +88,8 @@ class SpotifyPlugin(PixooPluginBase):
             else:
                 self.pixoo.draw_text("Spotify", (15, 25), (30, 215, 96))
             
-            if self.show_progress_bar:
+            show_progress_bar = str(self.config.get("show_progress_bar", "false")).lower() == "true"
+            if show_progress_bar:
                 duration_ms = max(1, item.get('duration_ms', 1))
                 progress_ms = playback.get('progress_ms', 0)
                 bar_width = int(min(1.0, max(0.0, progress_ms / duration_ms)) * 64)
@@ -103,11 +102,12 @@ class SpotifyPlugin(PixooPluginBase):
 
     def loop(self):
         while True:
+            update_interval = max(1, int(self.config.get("update_interval", 3)))
             if self.sp:
                 try:
                     playback = self.sp.current_playback()
                     self.update_display(playback)
                 except Exception as e:
                     logger.error(f"Plugin loop error: {e}")
-            time.sleep(self.update_interval)
+            time.sleep(update_interval)
 
