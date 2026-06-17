@@ -59,18 +59,33 @@ class SpotifyPlugin(PixooPluginBase):
             img = Image.open(image_path).convert('RGB')
             img.thumbnail((32, 32))
             colors = img.getcolors(32*32)
-            colors.sort(key=lambda x: x[0], reverse=True)
             
-            for count, color in colors:
-                r, g, b = color
-                # Check for vibrant color (high saturation, not too dark/bright)
-                saturation = max(r, g, b) - min(r, g, b)
-                if saturation > 30 and 50 < sum(color) < 700:
-                    return color
-            return colors[0][1]
+            def get_saturation(c):
+                return max(c) - min(c)
+                
+            valid_colors = []
+            for count, c in colors:
+                # Must be reasonably bright and saturated to be considered "knallig"
+                if get_saturation(c) > 20 and max(c) > 80:
+                    valid_colors.append((count, c))
+            
+            if valid_colors:
+                # Score = count * saturation. Pick the most prominent vibrant color
+                valid_colors.sort(key=lambda item: item[0] * get_saturation(item[1]), reverse=True)
+                return valid_colors[0][1]
+                
+            # Fallback if no vibrant colors (e.g. grayscale image)
+            colors.sort(key=lambda x: x[0], reverse=True)
+            for count, c in colors:
+                # Return the most common color that isn't purely black/dark grey
+                if max(c) > 100:
+                    return c
+                    
+            # Ultimate fallback for pitch black images
+            return (30, 215, 96) # Spotify Green
         except Exception as e:
             logger.error(f"Error getting color: {e}")
-            return (0, 120, 255)
+            return (30, 215, 96)
 
     def update_display(self, playback):
         if not playback or not playback.get('item') or not playback.get('is_playing'):
@@ -113,6 +128,18 @@ class SpotifyPlugin(PixooPluginBase):
             if show_progress_bar:
                 duration_ms = max(1, item.get('duration_ms', 1))
                 progress_ms = playback.get('progress_ms', 0)
+                
+                # Separator line to ensure the progress bar never blends into the cover
+                self.pixoo.draw_line((0, 62), (63, 62), (0, 0, 0))
+                
+                # Draw a darker background track for the progress bar
+                track_color = (
+                    int(self.progress_bar_color[0] * 0.3),
+                    int(self.progress_bar_color[1] * 0.3),
+                    int(self.progress_bar_color[2] * 0.3)
+                )
+                self.pixoo.draw_line((0, 63), (63, 63), track_color)
+                
                 bar_width = int(min(1.0, max(0.0, progress_ms / duration_ms)) * 64)
                 if bar_width > 0:
                     self.pixoo.draw_line((0, 63), (bar_width - 1, 63), self.progress_bar_color)
