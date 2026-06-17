@@ -34,9 +34,9 @@
         {
             "name": "show_progress_bar",
             "label": "Show Progress Bar",
-            "type": "text",
-            "default": "false",
-            "info": "Enter 'true' to display a 1-pixel blue progress bar at the bottom, or 'false' to hide it."
+            "type": "switch",
+            "default": false,
+            "info": "Toggle to display a 1-pixel blue progress bar at the bottom."
         },
         {
             "name": "update_interval",
