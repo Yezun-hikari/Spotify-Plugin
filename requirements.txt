@@ -1,3 +1,2 @@
-spotipy
-Pillow
 requests
+Pillow

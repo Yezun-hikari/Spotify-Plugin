@@ -1,47 +1,51 @@
-# Spotify Now Playing Plugin
+# Spotify for Pixoo Hub
 
-This plugin for the Pixoo Hub Marketplace displays the cover art of the currently playing song on your Spotify account directly on your Pixoo 64. It also features an optional dynamic progress bar at the bottom of the screen that automatically adopts a vibrant color from the album cover.
+Shows the cover of the song you're playing on your Pixoo 64, with an optional progress bar
+in the cover's accent color.
 
-## 🛠 Configuration & Setup
+It only lights up when Spotify plays on a device you want: by default **not** when the
+music runs on a smartphone or tablet. Listening on your phone on the go, in bed, or on the
+iPad at school leaves the display dark. Playing on the PC or a speaker at home shows the
+cover. The rules can be refined per device name.
 
-Because this plugin interacts with the Spotify API to read your current playback, you need to provide it with your own API credentials. This ensures you don't run into rate limits shared by other users.
+Requires Pixoo Hub 2.
 
-### Step 1: Create a Spotify Developer App
-1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
-2. Log in with your Spotify account and click on **Create app**.
-3. Fill out the details (App Name and Description can be anything).
-4. Under **Redirect URIs**, you **must** enter `https://google.com/callback`.
-5. Under **APIs used**, check **Web API**.
-6. Save the app. 
-7. Go to the app's settings and click **View client secret**. You will need both the **Client ID** and **Client Secret** for the next steps.
+## Setup
 
-### Step 2: Get your Refresh Token
-To allow the Pixoo Hub to keep updating your screen in the background without asking you to log in every hour, the plugin needs a **Refresh Token**.
+1. Open the [Spotify developer dashboard](https://developer.spotify.com/dashboard) and
+   create an app. Tick **Web API**, and add `http://127.0.0.1:8888/callback` as redirect URI.
+2. Copy **Client ID** and **Client Secret** into the plugin settings in Pixoo Hub.
+3. Press **1. Mit Spotify verbinden** and log in. Spotify then sends you to
+   `http://127.0.0.1:8888/callback?code=…` — that page won't load, which is expected.
+   Copy the full address from the address bar into the field below the button.
+4. Press **2. Verbindung abschließen**, then **Einstellungen speichern**.
 
-Included in this plugin is a helper script to generate this token:
-1. Open a terminal/command prompt in the plugin's folder.
-2. Ensure you have the required library installed:
-   ```bash
-   pip install spotipy
-   ```
-3. Run the script:
-   ```bash
-   python get_refresh_token.py
-   ```
-4. Paste your **Client ID** and **Client Secret** when prompted.
-5. Your browser will open. Log into Spotify and click "Agree".
-6. You will be redirected to a Google page with a 404 error. **This is normal.**
-7. Look at the URL in your browser's address bar. It will look like `https://google.com/callback?code=NApCC...`. Copy the **entire URL**.
-8. Paste the URL back into the python script.
-9. The script will output your **Refresh Token**. Copy it!
+The refresh token is stored in the plugin's private storage, not in the settings.
 
-### Step 3: Configure the Plugin in Pixoo Hub
-Open the Pixoo Hub dashboard, install this plugin, and navigate to the plugin's settings.
+## Which device lights up the display
 
-- **Client ID**: Paste the Client ID from Step 1.
-- **Client Secret**: Paste the Client Secret from Step 1.
-- **Refresh Token**: Paste the Refresh Token you got in Step 2.
-- **Show Progress Bar**: Enter `true` to display a dynamic progress bar at the bottom, or `false` to hide it.
-- **Update Interval (seconds)**: Defines how often the plugin asks Spotify for the current song. `3` is a good default.
+Spotify reports the active device with a name and a type (`Computer`, `Smartphone`,
+`Tablet`, `Speaker`, `TV`, …).
 
-Once saved, the plugin will authenticate automatically and your Pixoo 64 will display your current song's cover!
+- **Gerätetypen**: the cover is shown only if the device type is ticked.
+  Default: everything except smartphone, tablet and car.
+- **Immer ignorieren**: device names that never light up the display.
+- **Immer anzeigen**: device names that always do, whatever their type.
+
+**Welches Gerät spielt gerade?** lists Spotify's current devices and whether each one
+would be shown — handy for finding the exact names.
+
+## Settings
+
+| | |
+|---|---|
+| Fortschrittsbalken | 2-pixel bar at the bottom |
+| Nach Pause noch anzeigen | keep the cover for a few seconds after pausing (default 10) |
+| Spotify abfragen alle | poll interval, 2–60 s (default 3) |
+| Refresh-Token | only for tokens from version 1; otherwise use the connect button |
+
+## Development
+
+```bash
+PYTHONPATH=../Pixoo64-Marketplace python -m pytest
+```

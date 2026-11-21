@@ -1,49 +1,82 @@
 {
-    "name": "Spotify Now Playing",
-    "description": "Displays the cover art of the currently playing song on Spotify.",
-    "version": "1.0.6",
+    "id": "spotify",
+    "name": "Spotify",
+    "description": "Zeigt das Cover des aktuell laufenden Songs. Läuft die Musik auf Handy oder Tablet, bleibt das Display aus.",
+    "version": "2.0.0",
     "author": "Tim",
     "entry": "plugin.py",
-    "settings_schema": [
+    "hub_api": 2,
+    "settings": [
+        { "type": "header", "label": "Spotify-Zugang" },
         {
-            "type": "header",
-            "label": "Spotify API Credentials"
+            "type": "note",
+            "label": "Einmalig: Auf https://developer.spotify.com/dashboard eine App anlegen (Web API), als Redirect URI http://127.0.0.1:8888/callback eintragen und Client ID und Client Secret hier einfügen."
+        },
+        { "name": "client_id", "label": "Client ID", "type": "text" },
+        { "name": "client_secret", "label": "Client Secret", "type": "password" },
+        {
+            "name": "redirect_uri", "label": "Redirect URI", "type": "text",
+            "default": "http://127.0.0.1:8888/callback",
+            "info": "Muss exakt so im Spotify-Dashboard stehen."
         },
         {
-            "name": "client_id",
-            "label": "Client ID",
-            "type": "text",
-            "info": "Your Spotify Developer Client ID."
+            "name": "connect", "label": "1. Mit Spotify verbinden", "type": "action",
+            "info": "Öffnet die Spotify-Anmeldung. Danach landest du auf einer Seite, die nicht lädt – das ist richtig. Kopiere die Adresse aus der Adresszeile in das Feld darunter."
+        },
+        { "name": "callback_url", "label": "Adresse nach der Anmeldung", "type": "text", "placeholder": "http://127.0.0.1:8888/callback?code=…" },
+        { "name": "finish", "label": "2. Verbindung abschließen", "type": "action" },
+
+        { "type": "header", "label": "Wann soll das Display leuchten?" },
+        {
+            "name": "show_on_types", "label": "Nur anzeigen, wenn Spotify auf so einem Gerät läuft", "type": "multiselect",
+            "options": [
+                { "value": "Computer", "label": "Computer" },
+                { "value": "Speaker", "label": "Lautsprecher" },
+                { "value": "TV", "label": "Fernseher" },
+                { "value": "CastAudio", "label": "Chromecast Audio" },
+                { "value": "CastVideo", "label": "Chromecast" },
+                { "value": "AVR", "label": "AV-Receiver" },
+                { "value": "STB", "label": "Set-Top-Box" },
+                { "value": "GameConsole", "label": "Spielkonsole" },
+                { "value": "AudioDongle", "label": "Audio-Dongle" },
+                { "value": "Smartphone", "label": "Smartphone" },
+                { "value": "Tablet", "label": "Tablet" },
+                { "value": "Automobile", "label": "Auto" },
+                { "value": "Unknown", "label": "Unbekannt" }
+            ],
+            "default": ["Computer", "Speaker", "TV", "CastAudio", "CastVideo", "AVR", "STB", "GameConsole", "AudioDongle"],
+            "info": "Smartphone und Tablet sind standardmäßig aus: Hörst du unterwegs, im Bett oder in der Schule am Handy oder iPad, bleibt der Pixoo dunkel."
         },
         {
-            "name": "client_secret",
-            "label": "Client Secret",
-            "type": "password",
-            "info": "Your Spotify Developer Client Secret."
+            "name": "exclude_devices", "label": "Diese Geräte immer ignorieren", "type": "text",
+            "placeholder": "z. B. Arbeitslaptop, Auto",
+            "info": "Gerätenamen wie in Spotify, mit Komma getrennt. Groß/klein egal."
         },
         {
-            "name": "refresh_token",
-            "label": "Refresh Token",
-            "type": "password",
-            "info": "Your Spotify Refresh Token. You can run get_refresh_token.py to get one."
+            "name": "include_devices", "label": "Diese Geräte immer anzeigen", "type": "text",
+            "placeholder": "z. B. Wohnzimmer",
+            "info": "Hat Vorrang vor den Gerätetypen oben."
         },
         {
-            "type": "header",
-            "label": "Display Options"
+            "name": "which_device", "label": "Welches Gerät spielt gerade?", "type": "action",
+            "info": "Zeigt Name und Typ des aktuell aktiven Spotify-Geräts – praktisch zum Einrichten der Regeln."
+        },
+
+        { "type": "header", "label": "Darstellung" },
+        { "name": "show_progress", "label": "Fortschrittsbalken unten", "type": "switch", "default": true },
+        {
+            "name": "pause_grace", "label": "Nach Pause noch anzeigen (Sekunden)", "type": "number",
+            "default": 10, "min": 0, "max": 600
         },
         {
-            "name": "show_progress_bar",
-            "label": "Show Progress Bar",
-            "type": "switch",
-            "default": false,
-            "info": "Toggle to display a dynamic progress bar at the bottom based on cover colors."
+            "name": "poll_interval", "label": "Spotify abfragen alle (Sekunden)", "type": "number",
+            "default": 3, "min": 2, "max": 60
         },
+
+        { "type": "header", "label": "Erweitert" },
         {
-            "name": "update_interval",
-            "label": "Update Interval (seconds)",
-            "type": "number",
-            "default": 3,
-            "info": "How often to poll Spotify for updates (seconds)."
+            "name": "refresh_token", "label": "Refresh-Token (optional)", "type": "password",
+            "info": "Nur nötig, wenn du schon einen Token aus der alten Version hast. Sonst einfach den Verbinden-Knopf oben benutzen."
         }
     ]
 }
