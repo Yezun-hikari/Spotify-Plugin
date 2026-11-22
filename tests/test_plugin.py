@@ -153,6 +153,8 @@ def test_progress_bar_drawn(plugin):
     px = lambda x, y: tuple(frame[(y * 64 + x) * 3:(y * 64 + x) * 3 + 3])
     assert px(5, 63) == p.bar_color            # 25% played -> first 16 columns filled
     assert px(40, 63) != p.bar_color
+    assert px(5, 62) != p.bar_color            # the bar is one pixel high ...
+    assert px(5, 62)[0] < 100 and px(40, 62)[0] < 100  # ... over two darkened rows
     assert px(10, 30)[0] > 150                  # the red cover
 
 

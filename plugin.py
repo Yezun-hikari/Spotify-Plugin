@@ -313,15 +313,16 @@ class Spotify(Plugin):
         self.bar_color = vibrant_color(img)
 
     def _draw_progress(self, img: Image.Image, fraction: float) -> None:
+        # The bottom two rows are darkened as a backdrop that separates the bar
+        # from the cover; the bar itself is one pixel high on the last row.
         px = img.load()
         filled = round(fraction * 64)
         for x in range(64):
             for y in (62, 63):
-                if x < filled:
-                    px[x, y] = self.bar_color
-                else:
-                    r, g, b = px[x, y]
-                    px[x, y] = (r // 3, g // 3, b // 3)
+                r, g, b = px[x, y]
+                px[x, y] = (r // 3, g // 3, b // 3)
+            if x < filled:
+                px[x, 63] = self.bar_color
 
     def _placeholder(self, title: str) -> Image.Image:
         from pixoohub.sdk import wrap

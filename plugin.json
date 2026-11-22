@@ -2,7 +2,7 @@
     "id": "spotify",
     "name": "Spotify",
     "description": "Zeigt das Cover des aktuell laufenden Songs. Läuft die Musik auf Handy oder Tablet, bleibt das Display aus.",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "author": "Tim",
     "entry": "plugin.py",
     "hub_api": 2,

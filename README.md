@@ -39,7 +39,7 @@ would be shown — handy for finding the exact names.
 
 | | |
 |---|---|
-| Fortschrittsbalken | 2-pixel bar at the bottom |
+| Fortschrittsbalken | 1-pixel bar on the bottom row, over the two darkened bottom rows |
 | Nach Pause noch anzeigen | keep the cover for a few seconds after pausing (default 10) |
 | Spotify abfragen alle | poll interval, 2–60 s (default 3) |
 | Refresh-Token | only for tokens from version 1; otherwise use the connect button |
